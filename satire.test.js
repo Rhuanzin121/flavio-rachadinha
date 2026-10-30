@@ -13,10 +13,10 @@ test('avisos: canal único, prioridade e nenhuma fala repetida ou atrasada',()=>
  assert.equal(gate.push('fala','FLÁVIO',0,30),false);
  gate.reset();assert.equal(gate.push('fala','FLÁVIO',0,0),true);
 });
-test('eventos: NPCs distintos, bordão exato e entradas/saídas contínuas',()=>{
- const seen=[];for(let i=0;i<4;i++){const e=chooseSatireEvent(seen,0);assert.ok(e);seen.push(e.id);}
- assert.equal(new Set(seen).size,4);assert.equal(chooseSatireEvent(seen),null);
- assert.equal(satireEvents.find(e=>e.id==='renan').line,'Prendeu, matou!');
+test('eventos: NPCs distintos, entradas/saídas contínuas',()=>{
+ const seen=[];for(let i=0;i<satireEvents.length;i++){const e=chooseSatireEvent(seen,0);assert.ok(e);seen.push(e.id);}
+ assert.equal(new Set(seen).size,satireEvents.length);assert.equal(chooseSatireEvent(seen),null);
+ assert.ok(satireEvents.every(e=>e.id!=='renan'));
  assert.equal(eventProgress(0),0);assert.equal(eventProgress(.9),1);assert.equal(eventProgress(4.5),1);assert.equal(eventProgress(5.4),0);
  for(let t=0;t<5.4;t+=.04)assert.ok(Math.abs(eventProgress(t+.04)-eventProgress(t))<.05);
 });
