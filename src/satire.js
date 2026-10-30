@@ -23,4 +23,4 @@ export function chooseSatireEvent(seen,random=Math.random()){
  return available.length?available[Math.min(available.length-1,Math.max(0,Math.floor(random*available.length)))]:null;
 }
 export const eventProgress=t=>t<.9?Math.max(0,t/.9):t<=4.5?1:Math.max(0,1-(t-4.5)/.9);
-export function secretAvailable(run){return !!(run.secretUnlocked||run.levels?.president||run.farthest>=12&&run.collected>=3);}
+export function secretAvailable(run){return !!(run.secretUnlocked||run.levels?.president);}
