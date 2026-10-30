@@ -1,5 +1,7 @@
 export const stages=['Brasília · Três Poderes','Centro · a pauta é a rua','STF · o julgamento final','BR-040 · o pedágio da fuga','Aeroporto · portão 171'];
+import {secretAvailable} from './satire.js';
 export const upgrades=[
+ {id:'president',name:'Presidente Autodeclarado',category:'Recursos',icon:'seal',tag:'SECRETO · FAIXA PRÓPRIA',desc:'A cerimônia coube no bolso. A faixa veio sem a eleição.',price:140,max:1,secret:true},
  {id:'shoes',name:'Tênis de fuga',category:'Mobilidade',icon:'shoe',tag:'PASSIVO',desc:'A comissão aprovou a sola. A explicação continua pendente.',price:42,max:5},
  {id:'passport',name:'Passaporte premium',category:'Mobilidade',icon:'passport',tag:'CARGAS',desc:'O carimbo que conhece a porta lateral do protocolo.',price:60,max:5},
  {id:'driver',name:'Motorista particular',category:'Mobilidade',icon:'car',tag:'ATIVA + PASSIVA',desc:'Avance três casas. Às vezes, o motorista ainda desvia da pergunta.',price:80,max:5},
@@ -31,10 +33,10 @@ export function upgradeSummary(id,level){const s=stats({[id]:level}),pct=n=>Math
  shield:`${s.shieldCharges} cargas · −${pct(s.mitigation)} dano`,foro:`${pct(s.foroChance)} de evitar dano`,
  habeas:`Volta com ${Math.round(s.habeasHp)} HP / ${Math.round(s.habeasCooldown)} s`,
  contact:`+${pct(s.coinBonus)} moedas e etapas`,influence:`−${pct(s.discount)} preços · lentidão ${s.slowDuration.toFixed(1)} s`,
- caixa:`+${pct(s.caixaBonus)} verbas · fiscalização extra ${level}/5`
+ caixa:`+${pct(s.caixaBonus)} verbas · fiscalização extra ${level}/5`,president:'Faixa presidencial · 8 s: +20% velocidade e rua 25% mais lenta'
  }[id];}
 export function awardProgress(run,row){if(row<=run.farthest)return 0;const d=row-run.farthest;run.farthest=row;run.money+=d*2;run.earned+=d*2;return d*2;}
-export function purchase(run,id){const u=upgrades.find(x=>x.id===id);if(!u)return false;const level=run.levels[id]||0,p=cost(u,level,run.levels);if(level>=u.max||run.money<p)return false;run.money-=p;run.levels[id]=level+1;if(id==='shield')run.shields=Math.min(2,(run.shields||0)+1);if(id==='passport'){run.passports=(run.passports||0)+1;run.passport=true;}if(['dodge','driver','influence'].includes(id))run.equipped=id;return true;}
+export function purchase(run,id){const u=upgrades.find(x=>x.id===id);if(!u||u.secret&&!secretAvailable(run))return false;const level=run.levels[id]||0,p=cost(u,level,run.levels);if(level>=u.max||run.money<p)return false;run.money-=p;run.levels[id]=level+1;if(id==='president')run.presidentPending=true;if(id==='shield')run.shields=Math.min(2,(run.shields||0)+1);if(id==='passport'){run.passports=(run.passports||0)+1;run.passport=true;}if(['dodge','driver','influence'].includes(id))run.equipped=id;return true;}
 export function applyDamage(run,amount,roll=Math.random()){
  const s=stats(run.levels);run.hp??=100;run.habeasCd??=0;
  if(roll<s.foroChance)return {type:'foro',damage:0};

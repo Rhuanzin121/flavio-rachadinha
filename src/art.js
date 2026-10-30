@@ -23,7 +23,7 @@ export function createArt(T){
   const root=new T.Group(),rig=new T.Group();root.add(rig);
   const skin=kind==='flavio'?'#dca482':kind==='xandao'?'#c99579':kind==='lula'?'#d5a281':['#e1b18e','#ad7655','#724c3b','#c19173'][variant%4];
   const suit=['flavio','xandao','lula','parliament'].includes(kind);
-  const colors={flavio:'#20354d',xandao:'#1b1d29',lula:'#324456',pt:['#c82f3e','#e54c45'][variant%2],communist:['#9e2235','#b83b38','#764f3e'][variant%3],pf:'#253d36',press:'#c19b67',opposition:'#c9b14c',parliament:['#52637d','#78655d','#3e5d58'][variant%3]};
+  const colors={renan:'#252a32',flavio:'#20354d',xandao:'#1b1d29',lula:'#324456',pt:['#c82f3e','#e54c45'][variant%2],communist:['#9e2235','#b83b38','#764f3e'][variant%3],pf:'#253d36',press:'#c19b67',opposition:'#c9b14c',parliament:['#52637d','#78655d','#3e5d58'][variant%3]};
   const color=colors[kind]||'#386c67';
   const body=cyl(rig,color,0,1.03,0,.3,.4,.82,10);body.scale.z=.66;
   ell(rig,color,0,1.35,0,.4,.16,.25);
@@ -71,6 +71,7 @@ export function createArt(T){
    if(variant%3===1){const sign=new T.Group();arms[0].add(sign);cyl(sign,'#a7885d',0,-.1,0,.025,.025,1.6,6);text(sign,kind==='communist'?'SOCIALIZAR\nA FILA':'CADÊ A\nTRANSPARÊNCIA?',0,.8,.04,1.25,.65,kind==='communist'?'#b42b35':'#fff0d3',kind==='communist'?'#ffe89d':'#a82032');}
    if(variant%4===2){const beret=ell(head,kind==='communist'?'#303d34':'#af1f30',0,.48,0,.45,.1,.34);beret.rotation.z=.14;}
   }
+  if(kind==='renan'){text(rig,'RENAN',0,1.16,.245,.45,.18,'#252a32','#e9e4cc');for(const side of [-1,1])stroke(head,'#41332b',[[side*.34,-.12,.2],[side*.26,-.32,.3],[side*.08,-.39,.31]],.032);}
   if(kind==='pf'){const cap=ell(head,'#203b32',0,.46,0,.44,.14,.34);cub(head,'#1a3029',0,.38,.31,.46,.04,.3);text(head,'PF',0,.47,.315,.25,.17,'#203b32','#f6d773');}
   if(kind==='press'){const cam=cub(arms[1],'#273c43',0,-.43,.25,.32,.25,.4);const lens=cyl(arms[1],'#648f9a',0,-.43,.5,.1,.12,.16);lens.rotation.x=Math.PI/2;const mic=cyl(arms[0],'#20292f',0,-.42,.2,.035,.035,.4);mic.rotation.x=-.8;ell(arms[0],'#3e5360',0,-.3,.34,.1,.1,.11);}
   }
@@ -107,6 +108,9 @@ export function createArt(T){
   cub(parent,'#c4d4d2',-10,2.2,-85,4,4.4,15);for(let z=-78;z>-91;z-=2)cub(parent,'#6b9caa',-7.95,2.5,z,.05,2.7,1.3);text(parent,'TERMINAL INTERNACIONAL',0,4.8,-84,13,.9,'#263b54');
   for(const x of [-9,9]){cub(parent,'#d5dad3',x-1,1.25,-84,.22,2.5,1);cub(parent,'#d5dad3',x+1,1.25,-84,.22,2.5,1);cub(parent,'#d5dad3',x,2.5,-84,2.2,.25,1);text(parent,'RAIO-X',x,2.5,-83.45,1.7,.3,'#22475a');cub(parent,'#284044',x,.6,-84,1.6,.18,4);for(let i=0;i<3;i++){const bag=cub(parent,['#caa44e','#a75f47','#537f87'][i],x,.95,-82.8-i, .6,.6,.45);bag.userData.baggage=true;bag.userData.startZ=bag.position.z;}}
   text(parent,'PORTÃO 171\nÚLTIMA CHAMADA',7,2,-91,4,1,'#223a51');text(parent,'RETIRE OS SAPATOS.\nAS EXPLICAÇÕES TAMBÉM.',-9,2,-89,3.4,1,'#263b54');
+  text(parent,'CENTRÃO · APOIO\nSOB CONSULTA',9,2.1,-17,3.3,.8,'#785e3e');
+  text(parent,'ELEIÇÕES · SEGUNDO\nTURNO DA FILA',-9,2.4,-24,3.1,.8,'#275751');
+  const urna=new T.Group();urna.position.set(9,.05,-20);parent.add(urna);cub(urna,'#e6e0ca',0,.65,0,1.4,1.1,.75);text(urna,'JUSTIÇA\nELEITORAL',-.3,.85,.39,.65,.45,'#3d665e');for(let i=0;i<9;i++)cub(urna,'#394340',.34+(i%3)*.13,.85-Math.floor(i/3)*.16,.4,.09,.1,.04);text(parent,'URNA DO CAFEZINHO\nVOTO SECRETO. FILA PÚBLICA.',9,1.85,-20,3.1,.7,'#275751');
   return {lula,parliament};
  }
  function boss(parent){
@@ -138,5 +142,6 @@ export function createArt(T){
  v.g.rotation.z=-f*1.35;v.g.position.x=b.x*1.45+slide*19;v.g.position.y=.1-f*.4;d.rig.rotation.z=t<1.6?Math.sin(t*18)*.09:0;d.arms[0].rotation.x=-.9;d.arms[1].rotation.x=-.4;
  d.robe.rotation.z=Math.sin(t*17)*.08*(1-slide);d.robe.scale.x=1+Math.sin(t*14)*.045;d.robe.material.emissiveIntensity=Math.max(0,.2-t*.1);
 }
- return {character,animateCharacter,flag,text,scenery,boss,bossVisual,material};
+ function presidential(g,enabled,dt){const d=g.userData;if(!d.rig)return;if(enabled&&!d.sash){const sash=new T.Group();sash.position.set(0,1.12,.34);d.rig.add(sash);const ribbon=cub(sash,'#2f8a54',0,0,0,.17,.84,.035);ribbon.rotation.z=-.65;for(const side of [-1,1]){const edge=cub(sash,'#edc858',side*.075,0,.024,.025,.84,.02);edge.rotation.z=-.65;}const seal=cyl(sash,'#e7bb51',.17,-.23,.035,.085,.085,.035,16);seal.rotation.x=Math.PI/2;sash.scale.setScalar(.001);d.sash=sash;d.sashAmount=0;}if(d.sash){d.sashAmount=T.MathUtils.damp(d.sashAmount,enabled?1:0,8,dt);d.sash.visible=d.sashAmount>.01;d.sash.scale.setScalar(Math.max(.001,d.sashAmount));}}
+ return {character,animateCharacter,flag,text,scenery,boss,bossVisual,material,presidential};
 }
