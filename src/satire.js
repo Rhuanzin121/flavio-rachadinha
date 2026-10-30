@@ -14,7 +14,6 @@ export class NoticeGate {
  tick(now){if(this.current&&now>=this.current.expires)this.current=null;return this.current;}
 }
 export const satireEvents=[
- {id:'renan',name:'RENAN SANTOS',kind:'renan',line:'Prendeu, matou!',sign:'RENAN SANTOS\nPARTICIPAÇÃO ESPECIAL'},
  {id:'centrao',name:'CENTRÃO',kind:'parliament',line:'O apoio é amplo. A passagem, nem tanto.',sign:'CENTRÃO\nAPOIO SOB CONSULTA'},
  {id:'eleicoes',name:'ELEIÇÕES',kind:'opposition',line:'Segundo turno da fila: ninguém passou de 50% do caminho.',sign:'ELEIÇÕES\nVOTE NA FAIXA LIVRE'},
  {id:'pt',name:'COMITÊ DO CAFEZINHO',kind:'pt',line:'Nunca antes na história desta calçada houve tanta pauta.',sign:'PT · ASSEMBLEIA\nA PAUTA VIROU FAIXA'}

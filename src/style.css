@@ -12,3 +12,5 @@ main{overflow-x:hidden}h1{font-size:clamp(48px,5vw,76px);letter-spacing:-3px}@me
 body.notifying #top{visibility:hidden}
 @keyframes notice-appear{from{opacity:0;transform:translate(-50%,-5px)}to{opacity:1;transform:translate(-50%,0)}}
 @media(max-width:700px){#speech{top:15px;width:calc(100vw - 148px);padding:5px 8px}#speech small{font-size:7px;letter-spacing:.2px}#speech span{font-size:10px;line-height:12px}}
+
+.player-health span{display:flex;justify-content:space-between;gap:8px;font-size:11px}.player-health .track{height:8px}.coin-status strong{color:#ffd168}.coin-status small{display:block;margin-top:5px;font-size:9px;letter-spacing:0}.coin-status{min-width:100px}

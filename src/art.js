@@ -23,11 +23,11 @@ export function createArt(T){
   const root=new T.Group(),rig=new T.Group();root.add(rig);
   const skin=kind==='flavio'?'#dca482':kind==='xandao'?'#c99579':kind==='lula'?'#d5a281':['#e1b18e','#ad7655','#724c3b','#c19173'][variant%4];
   const suit=['flavio','xandao','lula','parliament'].includes(kind);
-  const colors={renan:'#252a32',flavio:'#20354d',xandao:'#1b1d29',lula:'#324456',pt:['#c82f3e','#e54c45'][variant%2],communist:['#9e2235','#b83b38','#764f3e'][variant%3],pf:'#253d36',press:'#c19b67',opposition:'#c9b14c',parliament:['#52637d','#78655d','#3e5d58'][variant%3]};
+  const colors={flavio:'#292b30',xandao:'#1b1d29',lula:'#324456',pt:['#c82f3e','#e54c45'][variant%2],communist:['#9e2235','#b83b38','#764f3e'][variant%3],pf:'#253d36',press:'#c19b67',opposition:'#c9b14c',parliament:['#52637d','#78655d','#3e5d58'][variant%3]};
   const color=colors[kind]||'#386c67';
   const body=cyl(rig,color,0,1.03,0,.3,.4,.82,10);body.scale.z=.66;
   ell(rig,color,0,1.35,0,.4,.16,.25);
-  if(suit){const shirt=cub(rig,'#eee9dc',0,1.25,.21,.28,.36,.07);const tie=cub(rig,kind==='flavio'?'#86b5ce':kind==='lula'?'#c65963':'#555b74',0,1.18,.27,.09,.35,.05);tie.rotation.z=.08;for(const s of [-1,1]){const lapel=cub(rig,kind==='flavio'?'#3a5069':color,s*.15,1.22,.25,.13,.4,.06);lapel.rotation.z=s*-.3;}cub(rig,'#d5b55a',-.24,1.35,.27,.045,.035,.025);}
+  if(suit){const shirt=cub(rig,'#eee9dc',0,1.25,.21,.28,.36,.07);const tie=cub(rig,kind==='flavio'?'#d9e2ec':kind==='lula'?'#c65963':'#555b74',0,1.18,.27,.09,.35,.05);tie.rotation.z=.08;for(const s of [-1,1]){const lapel=cub(rig,kind==='flavio'?'#393b40':color,s*.15,1.22,.25,.13,.4,.06);lapel.rotation.z=s*-.3;}cub(rig,'#d5b55a',-.24,1.35,.27,.045,.035,.025);}
   else if(kind==='pt')star(rig,0,1.14,.225,.13);
   else if(kind==='communist')hammerSickle(rig,0,1.13,.245,.15);
   else if(kind==='pf'){text(rig,'POLÍCIA\nFEDERAL',0,1.12,.24,.47,.32,'#253d36','#f5cf67');cub(rig,'#1b2826',0,.8,.22,.6,.1,.12);}
@@ -71,7 +71,6 @@ export function createArt(T){
    if(variant%3===1){const sign=new T.Group();arms[0].add(sign);cyl(sign,'#a7885d',0,-.1,0,.025,.025,1.6,6);text(sign,kind==='communist'?'SOCIALIZAR\nA FILA':'CADÊ A\nTRANSPARÊNCIA?',0,.8,.04,1.25,.65,kind==='communist'?'#b42b35':'#fff0d3',kind==='communist'?'#ffe89d':'#a82032');}
    if(variant%4===2){const beret=ell(head,kind==='communist'?'#303d34':'#af1f30',0,.48,0,.45,.1,.34);beret.rotation.z=.14;}
   }
-  if(kind==='renan'){text(rig,'RENAN',0,1.16,.245,.45,.18,'#252a32','#e9e4cc');for(const side of [-1,1])stroke(head,'#41332b',[[side*.34,-.12,.2],[side*.26,-.32,.3],[side*.08,-.39,.31]],.032);}
   if(kind==='pf'){const cap=ell(head,'#203b32',0,.46,0,.44,.14,.34);cub(head,'#1a3029',0,.38,.31,.46,.04,.3);text(head,'PF',0,.47,.315,.25,.17,'#203b32','#f6d773');}
   if(kind==='press'){const cam=cub(arms[1],'#273c43',0,-.43,.25,.32,.25,.4);const lens=cyl(arms[1],'#648f9a',0,-.43,.5,.1,.12,.16);lens.rotation.x=Math.PI/2;const mic=cyl(arms[0],'#20292f',0,-.42,.2,.035,.035,.4);mic.rotation.x=-.8;ell(arms[0],'#3e5360',0,-.3,.34,.1,.1,.11);}
   }
