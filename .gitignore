@@ -1,0 +1,33 @@
+# Dependencies and generated builds
+node_modules/
+dist/
+.vite/
+coverage/
+*.tsbuildinfo
+*.log
+*.zip
+
+# Local environment and credentials
+.env
+.env.*
+.npmrc
+.aws/
+.ssh/
+credentials*
+*.credentials.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa
+id_ed25519
+
+# Generated review screenshots
+/preview.png
+/julgamento-final.png
+
+# Operating system files
+.DS_Store
+Thumbs.db
