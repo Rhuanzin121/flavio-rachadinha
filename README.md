@@ -1,6 +1,6 @@
 # Flávio Rachadinha: Fugindo do Brasil
 
-**Jogar por um link:** o projeto está preparado para o GitHub Pages, sem instalação para quem joga. Consulte [PUBLICACAO.md](PUBLICACAO.md).
+**Jogar por um link:** o projeto está preparado para o GitHub Pages, sem instalação para quem joga. https://rhuanzin121.github.io/flavio-rachadinha/
 
 Jogo arcade 3D de sátira política. Personagens e situações são fictícios e absurdos; a narrativa não pretende relatar fatos.
 
