@@ -9,7 +9,7 @@ export function createArt(T){
  function cyl(p,c,x,y,z,rt,rb,h,n=12){return mesh(new T.CylinderGeometry(rt,rb,h,n),c,p,x,y,z);}
  function stroke(p,c,points,r=.018){return mesh(new T.TubeGeometry(new T.CatmullRomCurve3(points.map(v=>new T.Vector3(...v))),12,r,5,false),c,p);}
  function text(parent,words,x,y,z,w=3,h=.7,bg='#184738',fg='#fff6df'){
-  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;const ctx=canvas.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,1024,256);ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';const lines=words.split('\n');ctx.font=`900 ${Math.min(100,Math.floor(1500/Math.max(...lines.map(l=>l.length))))}px Arial`;lines.forEach((l,i)=>ctx.fillText(l,512,128+(i-(lines.length-1)/2)*100,980));const tex=new T.CanvasTexture(canvas);tex.colorSpace=T.SRGBColorSpace;const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex,side:T.DoubleSide}));m.position.set(x,y,z);m.userData.ownedMaterial=true;parent.add(m);return m;
+  const canvas=document.createElement('canvas');canvas.height=256;canvas.width=Math.max(256,Math.min(2048,Math.round(256*w/h)));const ctx=canvas.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle=fg;ctx.textAlign='center';ctx.textBaseline='middle';const lines=words.split('\n'),size=Math.floor(Math.min(205/lines.length,canvas.width*.9/(Math.max(...lines.map(l=>l.length))*.65)));ctx.font=`700 ${size}px Arial`;const gap=size*1.15;lines.forEach((l,i)=>ctx.fillText(l,canvas.width/2,128+(i-(lines.length-1)/2)*gap,canvas.width*.92));const tex=new T.CanvasTexture(canvas);tex.colorSpace=T.SRGBColorSpace;tex.anisotropy=4;const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex,side:T.DoubleSide}));m.position.set(x,y,z);m.userData.ownedMaterial=true;parent.add(m);return m;
  }
  function star(parent,x,y,z,size=.2,color='#ffffff'){
   const shape=new T.Shape();for(let i=0;i<10;i++){const a=Math.PI/2+i*Math.PI/5,r=i%2?size*.42:size;const xx=Math.cos(a)*r,yy=Math.sin(a)*r;i?shape.lineTo(xx,yy):shape.moveTo(xx,yy);}shape.closePath();return mesh(new T.ShapeGeometry(shape),color,parent,x,y,z);
@@ -21,7 +21,7 @@ export function createArt(T){
  function flag(parent,kind='pt',variant=0){const g=new T.Group();parent.add(g);cyl(g,'#d3c7a1',0,1.1,0,.025,.035,2.2,6);const f=new T.Group();f.position.set(.03,1.8,0);g.add(f);const cloth=cub(f,kind==='opposition'?'#e5bb40':'#b91c2e',.46,0,0,.94,.65,.035);if(kind==='pt'){star(f,.36,.02,.025,.22);text(f,'PT',.7,-.13,.03,.28,.2,'#b91c2e');}else if(kind==='communist')hammerSickle(f,.46,0,.04,.29);else text(f,'CADÊ\nA PAUTA?',.46,0,.025,.88,.56,'#e5bb40','#163d35');g.userData.fabric=f;g.userData.phase=variant;return g;}
  function character(kind='flavio',variant=0){
   const root=new T.Group(),rig=new T.Group();root.add(rig);
-  const skin=kind==='flavio'?'#dca482':kind==='xandao'?'#c99579':kind==='lula'?'#d5a281':['#e1b18e','#ad7655','#724c3b','#c19173'][variant%4];
+  const skin=kind==='flavio'?'#e1bca5':kind==='xandao'?'#c99579':kind==='lula'?'#d5a281':['#e1b18e','#ad7655','#724c3b','#c19173'][variant%4];
   const suit=['flavio','xandao','lula','parliament'].includes(kind);
   const colors={flavio:'#292b30',xandao:'#1b1d29',lula:'#324456',pt:['#c82f3e','#e54c45'][variant%2],communist:['#9e2235','#b83b38','#764f3e'][variant%3],pf:'#253d36',press:'#c19b67',opposition:'#c9b14c',parliament:['#52637d','#78655d','#3e5d58'][variant%3]};
   const color=colors[kind]||'#386c67';
@@ -76,7 +76,7 @@ export function createArt(T){
   }
   root.userData={...root.userData,kind,rig,head,legs,arms,pupils,brows,mouth,phase:variant*1.7};return root;
  }
- function animateCharacter(g,time,moving=false,look=0,alarm=0,action='idle'){const d=g.userData;if(!d.rig)return;const phase=time*(d.kind==='flavio'?17:10)+d.phase;d.legs.forEach((l,i)=>l.rotation.x=moving?Math.sin(phase+i*Math.PI)*.65:0);d.arms.forEach((a,i)=>{a.rotation.x=moving?Math.sin(phase+i*Math.PI+Math.PI)*.8:-.06;a.rotation.z=(i?-.12:.12)*(1+alarm*2);});d.rig.position.y=moving?Math.abs(Math.sin(phase))*.055:Math.sin(time*2+d.phase)*.018;d.rig.rotation.x=moving&&d.kind==='flavio'?.12:0;d.head.rotation.y=T.MathUtils.lerp(d.head.rotation.y,look*.25,.15);d.head.rotation.z=Math.sin(time*5)*alarm*.09;d.pupils.forEach((p,i)=>{p.position.x=(i?1:-1)*(d.sculpted?.185:.18)+look*(d.sculpted?.012:.025);p.scale.y=(d.sculpted?.029:.055)*(1+alarm*.22);});if(d.sweat)d.sweat.visible=alarm>.1;d.brows.forEach((b,i)=>b.position.y=.24+alarm*.045);if(d.flag)d.flag.userData.fabric.rotation.y=Math.sin(time*4+d.phase)*.2;
+ function animateCharacter(g,time,moving=false,look=0,alarm=0,action='idle'){const d=g.userData;if(!d.rig)return;const phase=time*(d.kind==='flavio'?17:10)+d.phase;d.legs.forEach((l,i)=>l.rotation.x=moving?Math.sin(phase+i*Math.PI)*.65:0);d.arms.forEach((a,i)=>{a.rotation.x=moving?Math.sin(phase+i*Math.PI+Math.PI)*.8:-.06;a.rotation.z=(i?-.12:.12)*(1+alarm*2);});d.rig.position.y=moving?Math.abs(Math.sin(phase))*.055:Math.sin(time*2+d.phase)*.018;d.rig.rotation.x=moving&&d.kind==='flavio'?.12:0;d.head.rotation.y=T.MathUtils.lerp(d.head.rotation.y,look*.25,.15);d.head.rotation.z=Math.sin(time*5)*alarm*.09;d.pupils.forEach((p,i)=>{p.position.x=(i?1:-1)*(d.sculpted?.185:.18)+look*(d.sculpted?.012:.025);p.scale.y=(d.sculpted?.024:.055)*(1+alarm*.22);});if(d.sweat)d.sweat.visible=alarm>.1;d.brows.forEach((b,i)=>b.position.y=.24+alarm*.045);if(d.flag)d.flag.userData.fabric.rotation.y=Math.sin(time*4+d.phase)*.2;
   if(d.action!==action){d.action=action;d.actionSince=time;}const t=Math.max(0,time-d.actionSince);
   if(d.sculpted){d.rig.rotation.z=0;d.rig.rotation.x=moving?.24:0;d.head.rotation.x=moving?-.08:0;
    if(action==='hit'){d.rig.rotation.z=Math.sin(t*45)*.16;d.head.rotation.x=-.16;}
@@ -85,7 +85,7 @@ export function createArt(T){
   }
  }
 
- function tent(parent,x,z,kind){const g=new T.Group();g.position.set(x,0,z);parent.add(g);for(const a of [-1,1])for(const b of [-1,1])cyl(g,'#d8ceaf',a*.8,.9,b*.65,.025,.025,1.8,6);const roof=mesh(new T.ConeGeometry(1.55,.65,4),kind==='communist'?'#a82736':'#cb3442',g,0,2,0);roof.rotation.y=Math.PI/4;text(g,kind==='communist'?'COMITÊ DO\nCAFÉ COLETIVO':'PT · BARRACA\nDA MOBILIZAÇÃO',0,1.65,.74,1.8,.5,'#ad2335');if(kind==='communist')hammerSickle(g,0,2.12,.7,.22);else star(g,0,2.13,.7,.23);}
+ function tent(parent,x,z,kind){const g=new T.Group();g.position.set(x,0,z);parent.add(g);for(const a of [-1,1])for(const b of [-1,1])cyl(g,'#d8ceaf',a*.8,.9,b*.65,.025,.025,1.8,6);const roof=mesh(new T.ConeGeometry(1.55,.65,4),kind==='communist'?'#a82736':'#cb3442',g,0,2,0);roof.rotation.y=Math.PI/4;text(g,kind==='communist'?'COMITÊ DO\nCAFÉ COLETIVO':'PT · BARRACA\nDA PAUTA',0,1.65,.74,1.8,.5,'#ad2335');if(kind==='communist')hammerSickle(g,0,2.12,.7,.22);else star(g,0,2.13,.7,.23);}
  function scenery(parent){
   // Esplanada: repeated slabs, pilotis, reflecting pool and the two Congress bowls.
   const congress=new T.Group();congress.position.set(-12,0,-9);parent.add(congress);cub(congress,'#e8dfc4',0,.15,0,9,.4,5);for(const x of [-.6,.6]){cub(congress,'#d2ded7',x,3.8,-1, .85,7,1.1);for(let y=1;y<7;y+=.45)cub(congress,'#6e9c9d',x,y,-.43,.62,.17,.02);}for(const side of [-1,1]){const bowl=mesh(new T.SphereGeometry(1,24,10,0,Math.PI*2,0,Math.PI/2),'#efe8d5',congress,side*2.6,.65,1);bowl.scale.set(1.7,.8,1.7);if(side===1)bowl.rotation.x=Math.PI;}text(congress,'CONGRESSO NACIONAL',0,.6,2.55,7,.6,'#174738');cub(parent,'#64a6ab',-10,-.03,-3,4,.07,2.5);
@@ -93,12 +93,12 @@ export function createArt(T){
   text(parent,'BRASÍLIA · PRAÇA\nDOS TRÊS PODERES',8,1.6,-3,4.3,1,'#206154');
   const parliament=[];for(let i=0;i<4;i++){const n=character('parliament',i);n.position.set(-8.7+i*.6,0,-13-i*.25);n.userData.baseX=n.position.x;n.userData.neutral=true;n.scale.setScalar(.62);n.rotation.y=.5;parent.add(n);parliament.push(n);}
   for(let i=0;i<5;i++){tent(parent,i%2?-9:9,-22-i*2.2,i%2?'communist':'pt');const f=flag(parent,i%2?'communist':'pt',i);f.position.set(i%2?-7.8:7.8,0,-21-i*2.2);f.scale.setScalar(1.3);}
-  text(parent,'CENTRAL DOS\nCARIMBOS REVOLUCIONÁRIOS',-9,3,-29,4,1,'#b02d38');text(parent,'PT · A PAUTA É\nNÃO DEIXAR PASSAR',9,3,-24,4,1,'#b02d38');
+  text(parent,'CENTRAL DOS\nCARIMBOS',-9,3,-29,4,1,'#b02d38');text(parent,'PT · A PAUTA É\nNÃO DEIXAR PASSAR',9,3,-24,4,1,'#b02d38');
   // Lula is a neutral cameo on a podium, outside the collision lanes.
   const lula=character('lula');lula.position.set(9, .65,-28);lula.scale.setScalar(1.3);parent.add(lula);cub(parent,'#235648',9,.3,-28,2.8,.6,2.2);text(parent,'LULA · PALANQUE\nINAUGURAÇÃO DA FILA',9,.8,-26.8,3.1,.7,'#a92b35');lula.userData.neutral=true;
   // Institutional hall and STF's slender white columns.
   for(const x of [-10,10]){cub(parent,'#c9d4cf',x,.1,-47,4,.3,15);cub(parent,'#e8dfcb',x,4.5,-47,4,.3,15);for(let z=-40;z>=-54;z-=2.4){const c=cyl(parent,'#efe5d0',x+(x<0?1.6:-1.6),2.2,z,.12,.2,4.4);c.rotation.z=x<0?-.12:.12;}cub(parent,'#658c8e',x-1,2.3,-54.5,2,3.8,.14);}
-  text(parent,'SUPREMO TRIBUNAL\nFEDERAL',-10,4.8,-52.8,4,1,'#182c3b');text(parent,'PROTOCOLO:\nA PACIÊNCIA É OBRIGATÓRIA',-9,2,-39,3.8,1,'#263e4d');
+  text(parent,'SUPREMO TRIBUNAL\nFEDERAL',-10,4.8,-52.8,4,1,'#182c3b');text(parent,'PROTOCOLO:\nTENHA PACIÊNCIA',-9,2,-39,3.8,1,'#263e4d');
   // Road: toll gate, orange cones, kilometre plates and a parked semi-trailer.
   const toll=new T.Group();toll.position.z=-61;parent.add(toll);for(const x of [-8.1,8.1])cub(toll,'#b1b8a5',x,2.3,0,.45,4.6,.6);cub(toll,'#276955',0,4.6,0,17,.65,1.6);text(toll,'PEDÁGIO · ACEITAMOS RECURSOS',0,4.6,.82,12,.6,'#1e5a47');for(const x of [-6,0,6]){cub(toll,'#d7c79e',x,.7,-1,.8,1.4,.8);text(toll,'LIVRE',x,3.7,.2,1.3,.4,'#2b7951');}
   for(let i=0;i<9;i++){const cone=mesh(new T.ConeGeometry(.18,.55,8),'#e48a3d',parent,(i%2?-1:1)*8.1,.23,-57-i*2.8);cyl(parent,'#f5e5c5',cone.position.x,.22,cone.position.z,.12,.15,.1,8);}
@@ -109,7 +109,7 @@ export function createArt(T){
   text(parent,'PORTÃO 171\nÚLTIMA CHAMADA',7,2,-91,4,1,'#223a51');text(parent,'RETIRE OS SAPATOS.\nAS EXPLICAÇÕES TAMBÉM.',-9,2,-89,3.4,1,'#263b54');
   text(parent,'CENTRÃO · APOIO\nSOB CONSULTA',9,2.1,-17,3.3,.8,'#785e3e');
   text(parent,'ELEIÇÕES · SEGUNDO\nTURNO DA FILA',-9,2.4,-24,3.1,.8,'#275751');
-  const urna=new T.Group();urna.position.set(9,.05,-20);parent.add(urna);cub(urna,'#e6e0ca',0,.65,0,1.4,1.1,.75);text(urna,'JUSTIÇA\nELEITORAL',-.3,.85,.39,.65,.45,'#3d665e');for(let i=0;i<9;i++)cub(urna,'#394340',.34+(i%3)*.13,.85-Math.floor(i/3)*.16,.4,.09,.1,.04);text(parent,'URNA DO CAFEZINHO\nVOTO SECRETO. FILA PÚBLICA.',9,1.85,-20,3.1,.7,'#275751');
+  const urna=new T.Group();urna.position.set(9,.05,-20);parent.add(urna);cub(urna,'#e6e0ca',0,.65,0,1.4,1.1,.75);text(urna,'JUSTIÇA\nELEITORAL',-.3,.85,.39,.65,.45,'#3d665e');for(let i=0;i<9;i++)cub(urna,'#394340',.34+(i%3)*.13,.85-Math.floor(i/3)*.16,.4,.09,.1,.04);text(parent,'URNA DO CAFÉ\nFILA PÚBLICA',9,1.85,-20,3.1,.7,'#275751');
   return {lula,parliament};
  }
  function boss(parent){
