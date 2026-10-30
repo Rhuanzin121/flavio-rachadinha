@@ -21,11 +21,11 @@ test('eventos: NPCs distintos, entradas/saídas contínuas',()=>{
  for(let t=0;t<5.4;t+=.04)assert.ok(Math.abs(eventProgress(t+.04)-eventProgress(t))<.05);
 });
 test('segredo: compra bloqueada antes da descoberta, limite e save compatível',()=>{
- const r={levels:{},money:1000,farthest:0,collected:0};
- assert.equal(purchase(r,'president'),false);assert.equal(r.money,1000);
- r.farthest=12;r.collected=3;assert.equal(secretAvailable(r),true);
+ const r={levels:{},money:2000,farthest:0,collected:0};
+ assert.equal(purchase(r,'president'),false);assert.equal(r.money,2000);
+ r.farthest=60;r.collected=3;assert.equal(secretAvailable(r),false);r.secretUnlocked=true;assert.equal(secretAvailable(r),true);
  assert.equal(purchase(r,'president'),true);assert.equal(r.presidentPending,true);
- assert.equal(r.money,860);assert.equal(r.levels.president,1);assert.equal(purchase(r,'president'),false);
+ assert.equal(r.money,500);assert.equal(r.levels.president,1);assert.equal(purchase(r,'president'),false);
  const old=migrateSave({best:45,levels:{shoes:2,shield:1},presidentUnlocked:true});
  assert.equal(old.best,45);assert.equal(old.levels.shoes,2);assert.equal(old.levels.president,0);assert.equal(old.presidentUnlocked,true);
  assert.equal(upgrades.find(u=>u.id==='president').max,1);
