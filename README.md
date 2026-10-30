@@ -2,8 +2,6 @@
 
 **Jogar por um link:** o projeto está preparado para o GitHub Pages, sem instalação para quem joga. Consulte [PUBLICACAO.md](PUBLICACAO.md).
 
-**Expansão República em Pânico instalada.** Consulte [EXPANSAO.md](EXPANSAO.md) para o elenco, novos cenários, comportamentos e regras do chefe. Recordes e upgrades anteriores são preservados.
-
 Jogo arcade 3D de sátira política. Personagens e situações são fictícios e absurdos; a narrativa não pretende relatar fatos.
 
 ## Executar
