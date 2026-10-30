@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import * as Three from 'three';
 import * as rules from './src/rules.js';
 import * as bossRules from './src/boss.js';
+import * as satireRules from './src/satire.js';
 import {ArcadeAudio} from './src/audio.js';
 import {upgradeIcon} from './src/icons.js';
 
@@ -12,12 +13,12 @@ import {upgradeIcon} from './src/icons.js';
 // Rendering/input are verified separately in the browser.
 function boot(){
  const storage=new Map(),nodes=new Map();
- const node=()=>({hidden:false,innerHTML:'',textContent:'',className:'',classList:{add(){},remove(){},toggle(){}},addEventListener(){}});
+ const node=()=>({hidden:false,innerHTML:'',textContent:'',className:'',classList:{add(){},remove(){},toggle(){},contains(){return false;}},addEventListener(){}});
  const document={querySelector(s){if(!nodes.has(s))nodes.set(s,node());return nodes.get(s);},querySelectorAll(){return [];},addEventListener(){},body:node(),createElement(){return {width:0,height:0,getContext(){return {fillRect(){},fillText(){}};}};}};
  class Renderer{constructor(){this.shadowMap={};this.info={render:{}};}setPixelRatio(){}setSize(){}setClearColor(){}render(){}}
  // Art uses the injected document in its module scope, just like the browser.
  const artSource=readFileSync(new URL('./src/art.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace('export function createArt','function createArt');
- const c=vm.createContext({...rules,...bossRules,ArcadeAudio,upgradeIcon,T:{...Three,WebGLRenderer:Renderer},document,window:{addEventListener(){}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},innerWidth:1280,innerHeight:720,devicePixelRatio:1,matchMedia:()=>({matches:false}),performance:{now:()=>0},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},console});
+ const c=vm.createContext({...rules,...bossRules,...satireRules,ArcadeAudio,upgradeIcon,T:{...Three,WebGLRenderer:Renderer},document,window:{addEventListener(){}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},innerWidth:1280,innerHeight:720,devicePixelRatio:1,matchMedia:()=>({matches:false}),performance:{now:()=>0},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},console});
  vm.runInContext(readFileSync(new URL('./src/sculpt.js',import.meta.url),'utf8').replace('export function sculptFlavio','function sculptFlavio'),c);
  vm.runInContext(artSource,c);
  const source=readFileSync(new URL('./src/main.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'');
@@ -41,3 +42,10 @@ test('cinco etapas, loja, habilidades, checkpoint e embarque',()=>{const g=boot(
 test('arena limita movimento, pausa congela ataques e recompensa é única',()=>{const g=boot();g.get('start(); stage=2; run.row=28; run.farthest=28; run.x=5; player.position.set(7.25,0,-28*1.55); beginBoss()');assert.equal(g.get('mode'),'bossIntro');assert.equal(g.get('run.x'),4);g.get('resume(); inv=1000; move(0,-1)');assert.equal(g.get('hop'),null);g.get('pause()');g.tick(80);assert.equal(g.get('bossState.elapsed'),0);g.get('resume(); inv=1000');g.tick(20);assert.ok(g.get('bossState.elapsed')>0);g.get('bossState.active=false; bossState.defeated=true; bossWon()');assert.equal(g.get('run.money'),180);g.get('bossWon()');assert.equal(g.get('run.money'),180);});
 test('treino não concede verba, recorde ou progresso persistente',()=>{const g=boot();g.get('practiceBoss()');assert.equal(g.get('mode'),'bossIntro');g.get('resume(); bossState.active=false; bossState.defeated=true; bossWon()');assert.equal(g.get('mode'),'bossVictory');assert.equal(g.get('run.money'),0);assert.equal(g.get('saved.best'),0);assert.equal(g.get('saved.wins'),0);g.get('showEpilogue()');g.tick(210);assert.equal(g.get('mode'),'win');assert.equal(g.get('saved.wins'),0);g.get('practiceBoss(); resume(); inv=0; damage("treino",false,140)');assert.equal(g.get('saved.best'),0);});
 test('perseguição PF termina e respeita limite de distância da faixa',()=>{const g=boot();g.get('start(); inv=1000; run.row=8; player.position.set(-6,0,-8*1.55)');g.tick(1);assert.ok(g.get('lanes[8].items[0].chase')>2);g.get('player.position.z-=6');g.tick(60);assert.equal(g.get('lanes[8].items[0].chase'),0);assert.equal(g.get('lanes[8].items[0].chaseUsed'),true);assert.ok(g.get('Math.abs(lanes[8].items[0].g.position.z-lanes[8].items[0].homeZ)')<=2.4);});
+test('sátira: faixa, bônus temporário e entrada suave de NPC',()=>{
+ const g=boot();g.get('start(); run.money=500; run.secretUnlocked=true; purchase(run,"president")');g.tick(35);
+ assert.ok(g.get('run.presidency')>7);assert.ok(g.get('player.userData.sashAmount')>.7);
+ g.get('move(1,0)');const faster=g.get('hop.duration');g.tick();g.tick(210);
+ assert.equal(g.get('run.presidency'),0);g.get('move(-1,0)');assert.ok(g.get('hop.duration')>faster);g.tick();
+ g.get('inv=1000; run.row=7; player.position.z=-7*1.55; triggerSatire()');assert.equal(g.get('politicalEvent.g.scale.x'),.001);g.tick(20);assert.ok(g.get('politicalEvent.g.scale.x')>.8);g.tick(130);assert.equal(g.get('politicalEvent===null'),true);
+});
