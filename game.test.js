@@ -12,9 +12,9 @@ import {upgradeIcon} from './src/icons.js';
 // Runs the actual game code with real Three.js geometry and a headless renderer.
 // Rendering/input are verified separately in the browser.
 function boot(){
- const storage=new Map(),nodes=new Map();
+ const storage=new Map(),nodes=new Map(),listeners=new Map();
  const node=()=>({hidden:false,innerHTML:'',textContent:'',className:'',classList:{add(){},remove(){},toggle(){},contains(){return false;}},addEventListener(){}});
- const document={querySelector(s){if(!nodes.has(s))nodes.set(s,node());return nodes.get(s);},querySelectorAll(){return [];},addEventListener(){},body:node(),createElement(){return {width:0,height:0,getContext(){return {fillRect(){},fillText(){}};}};}};
+ const document={querySelector(s){if(!nodes.has(s))nodes.set(s,node());return nodes.get(s);},querySelectorAll(){return [];},addEventListener(type,fn){listeners.set(type,fn);},body:node(),createElement(){return {width:0,height:0,getContext(){return {fillRect(){},fillText(){}};}};}};
  class Renderer{constructor(){this.shadowMap={};this.info={render:{}};}setPixelRatio(){}setSize(){}setClearColor(){}render(){}}
  // Art uses the injected document in its module scope, just like the browser.
  const artSource=readFileSync(new URL('./src/art.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'').replace('export function createArt','function createArt');
@@ -23,7 +23,7 @@ function boot(){
  vm.runInContext(artSource,c);
  const source=readFileSync(new URL('./src/main.js',import.meta.url),'utf8').replace(/^import .*;$/gm,'');
  vm.runInContext(source,c);let time=0;
- return {get:s=>vm.runInContext(s,c),tick(n=8){for(let i=0;i<n;i++){time+=40;vm.runInContext(`animate(${time})`,c);}}};
+ return {key(key,target={tagName:'BODY'},repeat=false){let prevented=false;listeners.get('keydown')({key,target,repeat,preventDefault(){prevented=true;}});return prevented;},get:s=>vm.runInContext(s,c),tick(n=8){for(let i=0;i<n;i++){time+=40;vm.runInContext(`animate(${time})`,c);}}};
 }
 test('HP, proteção de uma carga, pausa e reinício',()=>{const g=boot();g.get('start(); inv=0; damage("teste",false,140)');assert.equal(g.get('mode'),'over');g.get('start(); run.shields=1; inv=0; damage("teste")');assert.equal(g.get('run.shields'),0);assert.equal(g.get('run.hp'),100);g.get('pause()');const elapsed=g.get('run.elapsed');g.tick(20);assert.equal(g.get('run.elapsed'),elapsed);g.get('resume(); inv=0; damage("teste",false,140)');assert.equal(g.get('mode'),'over');g.get('start()');assert.equal(g.get('run.farthest'),0);assert.equal(g.get('run.hp'),100);});
 test('colisão espacial real e moeda coletada somente uma vez',()=>{const g=boot();g.get('start(); inv=0; run.row=1; player.position.set(lanes[1].items[0].g.position.x,0,-1.55)');g.tick(1);assert.equal(g.get('run.hp'),52);assert.equal(g.get('mode'),'play');g.get('start(); inv=1000; run.x=3; player.position.x=3*1.45; move(0,1)');g.tick();assert.equal(g.get('run.collected'),1);assert.equal(g.get('run.money'),12);g.get('move(0,-1)');g.tick();g.get('move(0,1)');g.tick();assert.equal(g.get('run.money'),12);});
@@ -52,3 +52,5 @@ test('sátira: faixa, bônus temporário e entrada suave de NPC',()=>{
 test('correções: avião de frente e saldo para upgrades após resultado',()=>{const g=boot();g.get('start();run.money=150;finish(false,"teste")');assert.equal(g.get('saved.wallet'),150);assert.equal(g.get('run.finished'),true);assert.equal(g.get('mode'),'over');g.get('shop()');assert.equal(g.get('mode'),'shop');g.get('purchase(run,"shoes");saved.wallet=run.money;saved.levels={...run.levels};start()');assert.equal(g.get('run.money'),108);assert.equal(g.get('run.levels.shoes'),1);g.get('showEpilogue()');assert.equal(g.get('plane.rotation.y'),Math.PI);g.tick(130);assert.ok(g.get('plane.position.z')<-99);assert.ok(g.get('plane.position.y')>0);assert.ok(g.get('plane.rotation.x')>0);});
 
 test('supremo: desbloqueio apenas depois do embarque vitorioso',()=>{const g=boot();g.get('start();run.farthest=12;run.collected=3;unlockPresident()');assert.equal(g.get('!!saved.presidentVictoryUnlocked'),false);g.get('finish(false,"teste")');assert.equal(g.get('!!saved.presidentVictoryUnlocked'),false);g.get('start();run.money=1600;showEpilogue()');assert.equal(g.get('!!saved.presidentVictoryUnlocked'),false);g.tick(210);assert.equal(g.get('saved.presidentVictoryUnlocked'),true);assert.equal(g.get('purchase(run,"president")'),true);assert.equal(g.get('run.money'),100);});
+
+test('compatibilidade: teclado respeita menus e campos; touch híbrido e celebração única',()=>{const g=boot();assert.equal(g.key(' '),false);g.get('start();inv=1000');assert.equal(g.key('ArrowRight',{tagName:'INPUT'}),false);assert.equal(g.get('hop===null'),true);assert.equal(g.key('ArrowRight'),true);assert.equal(g.get('hop.nx'),1);g.tick();g.get('pause()');assert.equal(g.key(' '),false);g.key('Escape');assert.equal(g.get('mode'),'play');g.get('navigator={maxTouchPoints:1};syncTouchControls()');assert.equal(g.get("$('#touch').hidden"),false);g.get('result(true)');assert.equal(g.get("panel.innerHTML.includes('supreme-unlock')"),true);g.get('result(true)');assert.equal(g.get("panel.innerHTML.includes('supreme-unlock')"),false);});
