@@ -27,7 +27,7 @@ export function createArt(T){
   const color=colors[kind]||'#386c67';
   const body=cyl(rig,color,0,1.03,0,.3,.4,.82,10);body.scale.z=.66;
   ell(rig,color,0,1.35,0,.4,.16,.25);
-  if(suit){const shirt=cub(rig,'#eee9dc',0,1.25,.21,.28,.36,.07);const tie=cub(rig,kind==='flavio'?'#d9e2ec':kind==='lula'?'#c65963':'#555b74',0,1.18,.27,.09,.35,.05);tie.rotation.z=.08;for(const s of [-1,1]){const lapel=cub(rig,kind==='flavio'?'#393b40':color,s*.15,1.22,.25,.13,.4,.06);lapel.rotation.z=s*-.3;}cub(rig,'#d5b55a',-.24,1.35,.27,.045,.035,.025);}
+  if(suit){const shirt=cub(rig,'#eee9dc',0,1.25,.21,.28,.36,.07);const tie=cub(rig,kind==='flavio'?'#243b65':kind==='lula'?'#c65963':'#555b74',0,1.18,.27,.09,.35,.05);tie.rotation.z=.08;for(const s of [-1,1]){const lapel=cub(rig,kind==='flavio'?'#393b40':color,s*.15,1.22,.25,.13,.4,.06);lapel.rotation.z=s*-.3;}cub(rig,'#d5b55a',-.24,1.35,.27,.045,.035,.025);}
   else if(kind==='pt')star(rig,0,1.14,.225,.13);
   else if(kind==='communist')hammerSickle(rig,0,1.13,.245,.15);
   else if(kind==='pf'){text(rig,'POLÍCIA\nFEDERAL',0,1.12,.24,.47,.32,'#253d36','#f5cf67');cub(rig,'#1b2826',0,.8,.22,.6,.1,.12);}
